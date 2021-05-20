@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon';
 
-const makeSatellite = (cannonWorld = null) => {
+const makeSatellite = () => {
   const satelliteGroup = new THREE.Group();
   const satelliteMaterial = new THREE.MeshPhongMaterial({
     color: 0xefefef,

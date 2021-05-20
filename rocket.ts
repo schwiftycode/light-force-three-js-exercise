@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon';
 
-const makeRocket = (cannonWorld = null) => {
+const makeRocket = () => {
   const rocketGroup = new THREE.Group();
   const rocketMaterial = new THREE.MeshPhongMaterial({
     color: 0xefefef,
@@ -40,9 +40,7 @@ const makeRocket = (cannonWorld = null) => {
     linearDamping: 0,
     velocity: new CANNON.Vec3(5.5, 0, 0)
   });
-  if (cannonWorld) {
-    cannonWorld.add(rocketBody);
-  }
+
   return [rocketGroup, rocketBody];
 };
 
