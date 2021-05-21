@@ -32,15 +32,13 @@ const geometry = new THREE.SphereGeometry(
   Math.PI * 2
 );
 
-const [earth, earthBody, updateEarthPhysics] = makeEarth(geometry, cannonWorld);
+const [earth, earthBody] = makeEarth(geometry, cannonWorld);
 
-const [moon, moonBody, updateMoonPhysics] = makeMoon(geometry, cannonWorld);
+const [moon, moonBody] = makeMoon(geometry, cannonWorld);
 
 const [satelliteGroup, satelliteBodyGroup] = makeSatellite(cannonWorld);
 
-const [rocketGroup, rocketBodyGroup, updateRocketPhysics] = makeRocket(
-  cannonWorld
-);
+const [rocketGroup, rocketBodyGroup] = makeRocket(cannonWorld);
 
 /* Sunlight */
 const sunLight = new THREE.DirectionalLight(0xffffff, 1);
