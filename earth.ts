@@ -11,7 +11,6 @@ const makeEarth = geometry => {
 
   // const earthMaterial = new THREE.MeshNormalMaterial({ wireframe: true });
   const earth = new THREE.Mesh(geometry, earthMaterial);
-  earth.position.x = 5;
   earth.rotation.x = (23.4 / 180) * Math.PI;
   earth.receiveShadow = true;
 
@@ -30,9 +29,9 @@ const makeEarth = geometry => {
     }
   );
 
-  var earthBody = new CANNON.Body({
+  let earthBody = new CANNON.Body({
     mass: 5.972 * Math.pow(10, 24), // kg
-    // position: new CANNON.Vec3(5, 0, 0), // m
+    position: new CANNON.Vec3(5, 0, 0), // m
     shape: new CANNON.Sphere(5),
     linearDamping: 0
     // velocity: new CANNON.Vec3(0, 0, 0)

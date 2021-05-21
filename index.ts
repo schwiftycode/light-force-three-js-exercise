@@ -68,24 +68,24 @@ scene.add(sunGroup);
 
 /* Cannon Constraints */
 let moonHinge = new CANNON.HingeConstraint(earthBody, moonBody, {
-  pivotA: new CANNON.Vec3(10, 0, 0),
+  pivotA: new CANNON.Vec3(),
   axisA: new CANNON.Vec3(0, 1, 0),
-  pivotB: new CANNON.Vec3(0, 0, 0),
+  pivotB: new CANNON.Vec3(10, 0, 0),
   axisB: new CANNON.Vec3(0, 1, 0)
 });
 moonHinge.enableMotor();
-moonHinge.setMotorSpeed(10);
+// moonHinge.setMotorSpeed(25);
 
-let moonDistance = new CANNON.DistanceConstraint(earthBody, moonBody, 5);
+let moonDistance = new CANNON.DistanceConstraint(earthBody, moonBody, 10);
 moonDistance.enable;
 /* End Cannon Constraints */
+
+// cannonWorld.addConstraint(moonHinge);
+// cannonWorld.addConstraint(moonDistance);
 
 cannonWorld.add(earthBody);
 cannonWorld.add(moonBody);
 cannonWorld.add(rocketBodyGroup);
-
-// cannonWorld.addConstraint(moonHinge);
-// cannonWorld.addConstraint(moonDistance);
 
 camera.position.z = 15;
 
@@ -114,17 +114,21 @@ function render() {
     earthBody.position.z
   );
 
-  // console.log(`earth.quaternion`);
-  // earth.quaternion.set(earthBody.quaternion);
-  // earth.applyQuaternion(earthBody.quaternion);
+  const earthRotationX = (earthBody.quaternion.x / Math.PI) * 180;
   const earthRotationY = (earthBody.quaternion.y / Math.PI) * 180;
-  earth.rotation.set(0, earthRotationY, 0);
+  const earthRotationZ = (earthBody.quaternion.z / Math.PI) * 180;
+  earth.rotation.set(earthRotationX, earthRotationY, earthRotationZ);
 
   moon.position.set(
     moonBody.position.x,
     moonBody.position.y,
     moonBody.position.z
   );
+
+  const moonRotationX = (moonBody.quaternion.x / Math.PI) * 180;
+  const moonRotationY = (moonBody.quaternion.y / Math.PI) * 180;
+  const moonRotationZ = (moonBody.quaternion.z / Math.PI) * 180;
+  // moon.rotation.set(moonRotationX, moonRotationY, moonRotationZ);
 
   // moonBody.position.set(moon.position.x, moon.position.y, moon.position.z);
 
@@ -156,17 +160,25 @@ let angleY = 0;
     cannonWorld.step(fixedTimeStep, dt, maxSubSteps);
   }
 
-  // var axis = new CANNON.Vec3(0, 1, 0);
-  var quatY = new CANNON.Quaternion();
+  // let axis = new CANNON.Vec3(0, 1, 0);
+  let quatY = new CANNON.Quaternion();
+  let quatX = new CANNON.Quaternion();
   angleY += 0.005;
   if (angleY > 360) {
     angleY = 0;
   }
-  earthBody.quaternion = quatY;
   quatY.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), (angleY / 180) * Math.PI);
+  quatX.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), (-12 / 180) * Math.PI);
+  earthBody.quaternion = quatY;
+
+  let quatZ = new CANNON.Quaternion();
+  quatZ.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -(angleY / 180) * Math.PI);
+
+  moonBody.quaternion = quatY;
 
   // moonDistance.update();
   // moonHinge.update();
+
   render();
   lastTime = time;
 })();

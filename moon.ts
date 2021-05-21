@@ -3,7 +3,7 @@ import * as CANNON from 'cannon';
 
 const makeMoon = geometry => {
   const moonMatURL =
-    'https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_poles_1k.jpg';
+    'https://t4.ftcdn.net/jpg/03/09/04/59/360_F_309045980_zKAgyd8feCR69CMWQ1PlhCHhteODo9zd.jpg';
 
   const moonMaterial = new THREE.MeshPhongMaterial({
     color: 0xefefef,
@@ -30,9 +30,10 @@ const makeMoon = geometry => {
     }
   );
 
-  var moonBody = new CANNON.Body({
+  let moonBody = new CANNON.Body({
+    // mass: 70, // kg
     mass: 7.3476 * Math.pow(10, 22), // kg
-    // position: new CANNON.Vec3(10, 0, 0), // m
+    position: new CANNON.Vec3(10, 0, 0), // m
     // rotation: new CANNON.Vec3(0, 0, 0),
     scale: new CANNON.Vec3(0.2, 0.2, 0.2),
     shape: new CANNON.Sphere(3),
