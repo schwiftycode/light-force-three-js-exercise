@@ -31,15 +31,14 @@ const makeMoon = geometry => {
   );
 
   let moonBody = new CANNON.Body({
-    // mass: 70, // kg
-    mass: 7.3476 * Math.pow(10, 22), // kg
-    position: new CANNON.Vec3(10, 0, 0), // m
+    mass: 7000, // kg
+    // mass: 7.3476 * Math.pow(10, 22), // kg
+    // position: new CANNON.Vec3(10, 0, 0), // m
     // rotation: new CANNON.Vec3(0, 0, 0),
-    scale: new CANNON.Vec3(0.2, 0.2, 0.2),
-    shape: new CANNON.Sphere(3),
-    linearDamping: 0
-    // velocity: new CANNON.Vec3(0, 0, 0)
+    shape: new CANNON.Sphere(3 * 0.2),
+    velocity: new CANNON.Vec3(0, 0, -5.5)
   });
+  moonBody.position.set(10, 0, 0);
 
   return [moon, moonBody];
 };

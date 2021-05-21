@@ -21,27 +21,42 @@ const makeRocket = () => {
     rocket: new THREE.Mesh(rocketGeometries.rocket, rocketMaterial)
   };
 
-  rocketBodies.body.rotation.z = -(90 / 180) * Math.PI;
-  rocketBodies.cone.rotation.z = -(90 / 180) * Math.PI;
-  rocketBodies.cone.position.x = -2;
-  rocketBodies.rocket.rotation.z = -(90 / 180) * Math.PI;
-  rocketBodies.rocket.position.x = 2;
+  // rocketBodies.body.rotation.z = -(90 / 180) * Math.PI;
+  // rocketBodies.cone.rotation.z = -(90 / 180) * Math.PI;
+  // rocketBodies.cone.position.x = -2;
+  // rocketBodies.rocket.rotation.z = -(90 / 180) * Math.PI;
+  // rocketBodies.rocket.position.x = 2;
 
   Object.values(rocketBodies).forEach(rocketBody => {
-    rocketGroup.add(rocketBody);
+    // rocketGroup.add(rocketBody);
   });
 
-  rocketGroup.position.x = -10;
+  // rocketGroup.position.x = -10;
 
-  let rocketBody = new CANNON.Body({
-    mass: 70, // kg
-    position: new CANNON.Vec3(-10, 0, 0), // m
-    shape: new CANNON.Cylinder(0.5, 0.5, 5, 32),
-    linearDamping: 0,
-    velocity: new CANNON.Vec3(5.5, 0, 0)
-  });
+  let rocketBodyGroup = {
+    body: new CANNON.Body({
+      mass: 700, // kg
+      position: new CANNON.Vec3(-8, 0, 0), // m
+      shape: new CANNON.Cylinder(0.5, 0.5, 3, 32),
+      velocity: new CANNON.Vec3(5.45, 0, 0)
+    }),
 
-  return [rocketGroup, rocketBody];
+    cone: new CANNON.Body({
+      mass: 700, // kg
+      position: new CANNON.Vec3(-6, 0, 0), // m
+      shape: new CANNON.Cylinder(0.125, 0.5, 1, 32),
+      velocity: new CANNON.Vec3(5.45, 0, 0)
+    }),
+
+    rocket: new CANNON.Body({
+      mass: 700, // kg
+      position: new CANNON.Vec3(-10, 0, 0), // m
+      shape: new CANNON.Cylinder(0.125, 0.5, 1, 32),
+      velocity: new CANNON.Vec3(5.45, 0, 0)
+    })
+  };
+
+  return [rocketBodies, rocketBodyGroup];
 };
 
 export { makeRocket };

@@ -32,13 +32,15 @@ const geometry = new THREE.SphereGeometry(
   Math.PI * 2
 );
 
-const [earth, earthBody] = makeEarth(geometry, cannonWorld);
+const [earth, earthBody, updateEarthPhysics] = makeEarth(geometry, cannonWorld);
 
-const [moon, moonBody] = makeMoon(geometry, cannonWorld);
+const [moon, moonBody, updateMoonPhysics] = makeMoon(geometry, cannonWorld);
 
 const [satelliteGroup, satelliteBodyGroup] = makeSatellite(cannonWorld);
 
-const [rocketGroup, rocketBodyGroup] = makeRocket(cannonWorld);
+const [rocketGroup, rocketBodyGroup, updateRocketPhysics] = makeRocket(
+  cannonWorld
+);
 
 /* Sunlight */
 const sunLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -61,8 +63,10 @@ scene.add(light);
 /* End Sunlight */
 
 moon.add(satelliteGroup);
-scene.add(rocketGroup);
-earth.add(moon);
+scene.add(rocketGroup.body);
+scene.add(rocketGroup.cone);
+scene.add(rocketGroup.rocket);
+scene.add(moon);
 scene.add(earth);
 scene.add(sunGroup);
 
@@ -70,25 +74,31 @@ scene.add(sunGroup);
 let moonHinge = new CANNON.HingeConstraint(earthBody, moonBody, {
   pivotA: new CANNON.Vec3(),
   axisA: new CANNON.Vec3(0, 1, 0),
-  pivotB: new CANNON.Vec3(10, 0, 0),
+  pivotB: new CANNON.Vec3(-10, 0, 0),
   axisB: new CANNON.Vec3(0, 1, 0)
 });
-moonHinge.enableMotor();
-// moonHinge.setMotorSpeed(25);
 
 let moonDistance = new CANNON.DistanceConstraint(earthBody, moonBody, 10);
 moonDistance.enable;
 /* End Cannon Constraints */
 
 // cannonWorld.addConstraint(moonHinge);
-// cannonWorld.addConstraint(moonDistance);
+cannonWorld.addConstraint(moonDistance);
 
 cannonWorld.add(earthBody);
 cannonWorld.add(moonBody);
-cannonWorld.add(rocketBodyGroup);
+cannonWorld.add(rocketBodyGroup.body);
+cannonWorld.add(rocketBodyGroup.cone);
+cannonWorld.add(rocketBodyGroup.rocket);
+
+// moonHinge.enableMotor();
+// moonHinge.setMotorSpeed(14);
 
 camera.position.z = 15;
+// camera.position.y = 15;
+// camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), (-90 / 180) * Math.PI);
 
+/* Relative Position Button */
 document
   .getElementById('satellite-position-button')
   .addEventListener('click', () => {
@@ -104,31 +114,37 @@ document
       document.getElementById('satellite-position-text').innerHTML
     }`;
   });
+/* End Relative Position Button */
+
+function updatePhysics(threeBody, cannonBody) {
+  threeBody.position.set(
+    cannonBody.position.x,
+    cannonBody.position.y,
+    cannonBody.position.z
+  );
+
+  const bodyRotation = {
+    x: (cannonBody.quaternion.x / Math.PI) * 180,
+    y: (cannonBody.quaternion.y / Math.PI) * 180,
+    z: (cannonBody.quaternion.z / Math.PI) * 180
+  };
+  // threeBody.rotation.set(bodyRotation.x, bodyRotation.y, bodyRotation.z);
+
+  threeBody.setRotationFromQuaternion(
+    new THREE.Quaternion(
+      cannonBody.quaternion.x,
+      cannonBody.quaternion.y,
+      cannonBody.quaternion.z,
+      cannonBody.quaternion.w
+    )
+  );
+}
 
 function render() {
   // requestAnimationFrame(render);
 
-  earth.position.set(
-    earthBody.position.x,
-    earthBody.position.y,
-    earthBody.position.z
-  );
-
-  const earthRotationX = (earthBody.quaternion.x / Math.PI) * 180;
-  const earthRotationY = (earthBody.quaternion.y / Math.PI) * 180;
-  const earthRotationZ = (earthBody.quaternion.z / Math.PI) * 180;
-  earth.rotation.set(earthRotationX, earthRotationY, earthRotationZ);
-
-  moon.position.set(
-    moonBody.position.x,
-    moonBody.position.y,
-    moonBody.position.z
-  );
-
-  const moonRotationX = (moonBody.quaternion.x / Math.PI) * 180;
-  const moonRotationY = (moonBody.quaternion.y / Math.PI) * 180;
-  const moonRotationZ = (moonBody.quaternion.z / Math.PI) * 180;
-  // moon.rotation.set(moonRotationX, moonRotationY, moonRotationZ);
+  updatePhysics(earth, earthBody);
+  updatePhysics(moon, moonBody);
 
   // moonBody.position.set(moon.position.x, moon.position.y, moon.position.z);
 
@@ -136,17 +152,9 @@ function render() {
   // earth.rotation.y += 0.01;
   // moon.rotation.y -= 0.0175;
 
-  rocketGroup.position.set(
-    rocketBodyGroup.position.x,
-    rocketBodyGroup.position.y,
-    rocketBodyGroup.position.z
-  );
-
-  // if (rocketGroup.position.x > 20) {
-  //   rocketGroup.position.x = -20;
-  // }
-
-  // rocketGroup.position.x += 0.04;
+  updatePhysics(rocketGroup.body, rocketBodyGroup.body);
+  updatePhysics(rocketGroup.cone, rocketBodyGroup.cone);
+  updatePhysics(rocketGroup.rocket, rocketBodyGroup.rocket);
 
   renderer.render(scene, camera);
 }
@@ -167,17 +175,27 @@ let angleY = 0;
   if (angleY > 360) {
     angleY = 0;
   }
-  quatY.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), (angleY / 180) * Math.PI);
-  quatX.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), (-12 / 180) * Math.PI);
+  quatY.setFromAxisAngle(
+    new CANNON.Vec3(0, 1, 0),
+    (angleY * Math.PI) / Math.PI
+  );
+  // quatY.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), (-12 / 180) * Math.PI);
   earthBody.quaternion = quatY;
 
   let quatZ = new CANNON.Quaternion();
-  quatZ.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -(angleY / 180) * Math.PI);
+  quatZ.setFromAxisAngle(
+    new CANNON.Vec3(0, 1, 0),
+    -((angleY * 2) / 180) * Math.PI
+  );
 
-  moonBody.quaternion = quatY;
+  // moonBody.quaternion = quatZ;
 
-  // moonDistance.update();
-  // moonHinge.update();
+  let rocketQuatZ = new CANNON.Quaternion();
+  let angleRadians = (-90 * Math.PI) / 180;
+  rocketQuatZ.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), angleRadians);
+  rocketBodyGroup.body.quaternion = rocketQuatZ;
+  rocketBodyGroup.cone.quaternion = rocketQuatZ;
+  rocketBodyGroup.rocket.quaternion = rocketQuatZ;
 
   render();
   lastTime = time;
