@@ -13,7 +13,7 @@ const camera = new THREE.PerspectiveCamera(70, width / height, 0.1, 1000);
 
 const cannonWorld = new CANNON.World();
 cannonWorld.gravity.set(0, 0, 0);
-let fixedTimeStep = 1.0 / 60.0; // seconds
+let fixedTimeStep = 1.0 / 60.0;
 let maxSubSteps = 3;
 
 const renderer = new THREE.WebGLRenderer();
@@ -56,7 +56,7 @@ sunGroup.rotation.y = -(140 / 180) * Math.PI;
 
 sunGroup.add(sunLight);
 
-const light = new THREE.AmbientLight(0x101010); // soft white light
+const light = new THREE.AmbientLight(0x101010);
 scene.add(light);
 /* End Sunlight */
 
@@ -80,7 +80,7 @@ let moonDistance = new CANNON.DistanceConstraint(earthBody, moonBody, 10);
 moonDistance.enable;
 /* End Cannon Constraints */
 
-// cannonWorld.addConstraint(moonHinge);
+cannonWorld.addConstraint(moonHinge);
 cannonWorld.addConstraint(moonDistance);
 
 cannonWorld.add(earthBody);
@@ -89,12 +89,9 @@ cannonWorld.add(rocketBodyGroup.body);
 cannonWorld.add(rocketBodyGroup.cone);
 cannonWorld.add(rocketBodyGroup.rocket);
 
-// moonHinge.enableMotor();
-// moonHinge.setMotorSpeed(14);
-
 camera.position.z = 15;
-// camera.position.y = 15;
-// camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), (-90 / 180) * Math.PI);
+camera.position.y = 5;
+camera.rotateOnAxis(new THREE.Vector3(1, 0, 0), (-15 / 180) * Math.PI);
 
 /* Relative Position Button */
 document
@@ -114,6 +111,7 @@ document
   });
 /* End Relative Position Button */
 
+/* Update Cannon.js Physics */
 function updatePhysics(threeBody, cannonBody) {
   threeBody.position.set(
     cannonBody.position.x,
@@ -126,7 +124,6 @@ function updatePhysics(threeBody, cannonBody) {
     y: (cannonBody.quaternion.y / Math.PI) * 180,
     z: (cannonBody.quaternion.z / Math.PI) * 180
   };
-  // threeBody.rotation.set(bodyRotation.x, bodyRotation.y, bodyRotation.z);
 
   threeBody.setRotationFromQuaternion(
     new THREE.Quaternion(
@@ -137,18 +134,16 @@ function updatePhysics(threeBody, cannonBody) {
     )
   );
 }
+/* End Update Cannon.js Physics */
 
+/* Render */
+let moonRotation = 0;
 function render() {
-  // requestAnimationFrame(render);
-
   updatePhysics(earth, earthBody);
   updatePhysics(moon, moonBody);
 
-  // moonBody.position.set(moon.position.x, moon.position.y, moon.position.z);
-
-  // earth.rotation.y += 0.005;
-  // earth.rotation.y += 0.01;
-  // moon.rotation.y -= 0.0175;
+  moonRotation += 0.005;
+  moon.rotation.y = moonRotation;
 
   updatePhysics(rocketGroup.body, rocketBodyGroup.body);
   updatePhysics(rocketGroup.cone, rocketBodyGroup.cone);
@@ -156,7 +151,9 @@ function render() {
 
   renderer.render(scene, camera);
 }
+/* End Render */
 
+/* Cannon.js Simulation Loop */
 let lastTime;
 let angleY = 0;
 (function simloop(time) {
@@ -166,9 +163,7 @@ let angleY = 0;
     cannonWorld.step(fixedTimeStep, dt, maxSubSteps);
   }
 
-  // let axis = new CANNON.Vec3(0, 1, 0);
   let quatY = new CANNON.Quaternion();
-  let quatX = new CANNON.Quaternion();
   angleY += 0.005;
   if (angleY > 360) {
     angleY = 0;
@@ -177,26 +172,11 @@ let angleY = 0;
     new CANNON.Vec3(0, 1, 0),
     (angleY * Math.PI) / Math.PI
   );
-  // quatY.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), (-12 / 180) * Math.PI);
   earthBody.quaternion = quatY;
-
-  let quatZ = new CANNON.Quaternion();
-  quatZ.setFromAxisAngle(
-    new CANNON.Vec3(0, 1, 0),
-    -((angleY * 2) / 180) * Math.PI
-  );
-
-  // moonBody.quaternion = quatZ;
-
-  let rocketQuatZ = new CANNON.Quaternion();
-  let angleRadians = (-90 * Math.PI) / 180;
-  rocketQuatZ.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), angleRadians);
-  rocketBodyGroup.body.quaternion = rocketQuatZ;
-  rocketBodyGroup.cone.quaternion = rocketQuatZ;
-  rocketBodyGroup.rocket.quaternion = rocketQuatZ;
 
   render();
   lastTime = time;
 })();
+/* End Cannon.js Simulation Loop */
 
 render();

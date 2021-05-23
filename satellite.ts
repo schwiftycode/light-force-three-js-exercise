@@ -42,7 +42,6 @@ const makeSatellite = () => {
     satelliteGroup.add(satelliteBody);
   });
 
-  // satelliteGroup.scale.set(0.5, 0.5, 0.5);
   satelliteGroup.position.x = 8;
   satelliteGroup.rotation.z = (45 / 180) * Math.PI;
   satelliteGroup.rotation.y = (45 / 180) * Math.PI;

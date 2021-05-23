@@ -31,10 +31,7 @@ const makeMoon = geometry => {
   );
 
   let moonBody = new CANNON.Body({
-    mass: 7000, // kg
-    // mass: 7.3476 * Math.pow(10, 22), // kg
-    // position: new CANNON.Vec3(10, 0, 0), // m
-    // rotation: new CANNON.Vec3(0, 0, 0),
+    mass: 7000,
     shape: new CANNON.Sphere(3 * 0.2),
     velocity: new CANNON.Vec3(0, 0, -5.5)
   });

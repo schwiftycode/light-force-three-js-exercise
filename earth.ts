@@ -9,9 +9,7 @@ const makeEarth = geometry => {
     color: 0x0000ff
   });
 
-  // const earthMaterial = new THREE.MeshNormalMaterial({ wireframe: true });
   const earth = new THREE.Mesh(geometry, earthMaterial);
-  // earth.rotation.x = (23.4 / 180) * Math.PI;
   earth.receiveShadow = true;
 
   const textureLoader = new THREE.TextureLoader();
@@ -30,10 +28,10 @@ const makeEarth = geometry => {
   );
 
   let earthBody = new CANNON.Body({
-    mass: 5.972 * Math.pow(10, 24), // kg
+    mass: 5.972 * Math.pow(10, 24),
     shape: new CANNON.Sphere(3)
   });
-  earthBody.position.set(5, 0, 0); // m
+  earthBody.position.set(5, 0, 0);
 
   return [earth, earthBody];
 };
